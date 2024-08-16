@@ -11,6 +11,7 @@ import com.mendix.systemwideinterfaces.connectionbus.data.IDataRow;
 import com.mendix.systemwideinterfaces.connectionbus.data.IDataTable;
 import com.mendix.systemwideinterfaces.connectionbus.requests.types.IOQLTextGetRequest;
 import com.mendix.systemwideinterfaces.core.IContext;
+import com.mendix.systemwideinterfaces.core.IMendixIdentifier;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 import mxmodelreflection.proxies.MxObjectMember;
 import mxmodelreflection.proxies.MxObjectType;
@@ -730,6 +731,8 @@ public class DataOQL
 	{
 		if (value instanceof Date)
 			return parseDate((Date)value);
+    else if (value instanceof IMendixIdentifier)
+			return parseMendixIdentifier((IMendixIdentifier)value);
 
 		return value;
 	}
@@ -743,6 +746,15 @@ public class DataOQL
 		DateTime dateTime = new DateTime(value);
 		return dateTime.withZone(DateTimeZone.UTC).toLocalDateTime().toDate();
 	}
+
+  private String parseMendixIdentifier(IMendixIdentifier value)
+  {
+    if(value == null)
+			return null;
+
+    // convert to long then to string (for Excel number limit purposes)
+    return Long.toString(value.toLong());
+  }
 
 	/**
 	 * Check if the string uses reserved words, and if place brackets around it.
