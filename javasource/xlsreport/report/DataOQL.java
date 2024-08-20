@@ -114,14 +114,23 @@ public class DataOQL
 		for (ColumnPreset column : mxColumnLists)
 		{
 			MxXPath first = column.getFirstPath();
-			switch (first.getRetrieveType())
+			MxXPath last = ColumnPreset.getLastPath(first);
+			
+			if (last.getMxXPath_MxObjectMember().getAttributeName().equalsIgnoreCase("ID"))
 			{
+				addAttribute(last, mainObject, column, true);
+			}
+			else
+			{
+				switch (first.getRetrieveType())
+				{
 				case Attribute:
-					addAttribute(first, mainObject, column);
+					addAttribute(first, mainObject, column, false);
 					break;
 				case Reference:
 					addObject(first, mainObject, column);
 					break;
+				}				
 			}
 		}
 
@@ -388,7 +397,7 @@ public class DataOQL
 	 *            The object structure that is the owner of the attribute
 	 * @throws CoreException
 	 */
-	private void addAttribute(MxXPath attributePath, ObjectData objectData, ColumnPreset column) throws CoreException
+	private void addAttribute(MxXPath attributePath, ObjectData objectData, ColumnPreset column, boolean prefixFullPath) throws CoreException
 	{
 		MxObjectMember member = attributePath.getMxXPath_MxObjectMember();
 		column.setDateTimeFormat(member.getAttributeType().equalsIgnoreCase("DateTime"));
@@ -396,7 +405,11 @@ public class DataOQL
 		// Create alias name for the attribute
 		String alias = createAlias(attribute, 0);
 		// Create new attribute data object
+		if (prefixFullPath) attribute = column.getFullPath();
+		
 		AttributeData attributeData = new AttributeData(attribute, alias, objectData);
+		attributeData.setFullPath(prefixFullPath);
+		
 		if (column.isDataAggregation())
 		{
 			attributeData.setAggregate(true);
@@ -547,7 +560,7 @@ public class DataOQL
 					addObject(childPath, toObjectData, column);
 					break;
 				case Attribute:
-					addAttribute(path, fromObjectData, column);
+					addAttribute(path, fromObjectData, column, false);
 					break;
 			}
 		} else
