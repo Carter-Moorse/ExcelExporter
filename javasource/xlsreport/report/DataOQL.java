@@ -150,7 +150,7 @@ public class DataOQL
 		for (int i = 0; i < this.attributeList.size(); i++)
 		{
 			AttributeData data = this.attributeList.get(i);
-			String attribute = escape(data.getObjectData().getAlias()+"."+data.getAttributeName().replace(" / ", "/"));
+			String attribute = escape(data.getObjectData().getAlias()+(data.isFullPath() ? "/" : ".")+data.getAttributeName().replace(" / ", "/"));
 			if (data.isAggregate())
 			{
 				switch (data.getFunction())
